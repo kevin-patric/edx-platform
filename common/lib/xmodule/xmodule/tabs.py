@@ -8,6 +8,9 @@ Implement CourseTab
 # dict-type accessors.
 
 from abc import ABCMeta, abstractmethod
+from django.conf import settings
+
+from milestones import api as milestones_api
 from xblock.fields import List
 
 # We should only scrape strings for i18n in this file, since the target language is known only when
@@ -723,9 +726,13 @@ class CourseTabList(List):
         __init__ method.  This is because the default values are dependent on other information from
         within the course.
         """
-
+        # Courseware tab is first position...
         course.tabs.extend([
             CoursewareTab(),
+        ])
+
+        # Course Info tab in second position...
+        course.tabs.extend([
             CourseInfoTab(),
         ])
 
@@ -798,15 +805,35 @@ class CourseTabList(List):
         Generator method for iterating through all tabs that can be displayed for the given course and
         the given user with the provided access settings.
         """
+        # Entrance Exams
+        entrance_exam_mode = False
+        if settings.FEATURES.get('ENTRANCE_EXAMS', False):
+            # MTD PROTOTYPE
+            # Check the entrance exam mode criteria
+            # 1. Course has an entrance exam
+            if getattr(course, 'entrance_exam_enabled', False):
+                entrance_exam_mode = True
+            # 2. Student has not yet collected the associated milestone
+            # Get entrance exam id and milestone fulfillment paths
+
+
         for tab in course.tabs:
             if tab.can_display(
                     course, settings, is_user_authenticated, is_user_staff, is_user_enrolled
             ) and (not tab.is_hideable or not tab.is_hidden):
+                if entrance_exam_mode:
+                    # Hide away all of the tabs except for 'Courseware'
+                    if tab.type != 'courseware':
+                        continue
+                    # Rather than create a whole new tab, we just rename 'Coursware' on-the-fly
+                    tab.name = "Entrance Exam"
                 if tab.is_collection:
                     for item in tab.items(course):
                         yield item
                 else:
                     yield tab
+
+        # Always return the instructor tab, regardless of the entrance exam mode state
         instructor_tab = InstructorTab()
         if instructor_tab.can_display(course, settings, is_user_authenticated, is_user_staff, is_user_enrolled):
             yield instructor_tab

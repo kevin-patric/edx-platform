@@ -54,6 +54,9 @@ from xmodule.x_module import XModuleDescriptor
 from util.json_request import JsonResponse
 from util.sandboxing import can_execute_unsafe_code, get_python_lib_zip
 
+if settings.FEATURES.get('MILESTONES_APP', False):
+    from milestones import api as milestones_api
+
 
 log = logging.getLogger(__name__)
 
@@ -122,9 +125,37 @@ def toc_for_course(request, course, active_chapter, active_section, field_data_c
         if course_module is None:
             return None
 
+
+
+
+        # MTD PROTOTYPE NOT DONE!!!
+        required_content = []
+        if settings.FEATURES.get('ENTRANCE_EXAMS', False) \
+            and settings.FEATURES.get('MILESTONES_APP', False) \
+                and course.entrance_exam_enabled:
+            # Get all of the outstanding milestones for this course, for this user
+            milestone_paths = milestones_api.get_course_milestones_fulfillment_paths(
+                unicode(course.id),
+                request.user.__dict__
+            )
+            # For each milestone key in the path dict...
+            for path_key in milestone_paths:
+                milestone_path = milestone_paths[path_key]
+                if milestone_path.get('content') and len(milestone_path['content']):
+                    for content in milestone_path['content']:
+                        required_content.append(content['content_id'])
+
         chapters = list()
         for chapter in course_module.get_display_items():
-            if chapter.hide_from_toc:
+            # Hide away any non-Entrance Exam chapter modules, if necessary
+            # chapter.hide_from_toc is read-only (boo)
+            local_hide_from_toc = False
+            if len(required_content):
+                if unicode(chapter.location) not in required_content:
+                    local_hide_from_toc = True
+
+            # Skip the current chapter if a hide flag is tripped
+            if chapter.hide_from_toc or local_hide_from_toc:
                 continue
 
             sections = list()
@@ -141,7 +172,6 @@ def toc_for_course(request, course, active_chapter, active_section, field_data_c
                                      'active': active,
                                      'graded': section.graded,
                                      })
-
             chapters.append({'display_name': chapter.display_name_with_default,
                              'url_name': chapter.url_name,
                              'sections': sections,

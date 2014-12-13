@@ -1,3 +1,7 @@
+"""
+Django module container for classes and operations related to the "Course Module" content type
+"""
+import json
 import logging
 from cStringIO import StringIO
 from math import exp
@@ -8,14 +12,15 @@ from datetime import datetime
 import dateutil.parser
 from lazy import lazy
 
+from django.conf import settings
+from django.utils.timezone import UTC
+
 from xmodule.seq_module import SequenceDescriptor, SequenceModule
 from xmodule.graders import grader_from_conf
 from xmodule.tabs import CourseTabList
-import json
 
 from xblock.fields import Scope, List, String, Dict, Boolean, Integer
 from .fields import Date
-from django.utils.timezone import UTC
 
 log = logging.getLogger(__name__)
 
@@ -652,6 +657,19 @@ class CourseFields(object):
             {"display_name": _("None"), "value": CATALOG_VISIBILITY_NONE}]
     )
 
+    if settings.FEATURES.get('ENTRANCE_EXAMS', False):
+        entrance_exam_enabled = Boolean(
+            display_name=_("Entrance Exam Enabled"),
+            help=_("Specify whether students must complete an entrance exam before they can view your course content."),
+            default=False,
+            scope=Scope.settings,
+        )
+        entrance_exam_minimum_score_pct = Integer(
+            display_name=_("Entrance Exam Minimum Score (%)"),
+            help=_("Specify a minimum percentage score for an entrance exam before a student can view your course content."),
+            default=65,
+            scope=Scope.settings,
+        )
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule

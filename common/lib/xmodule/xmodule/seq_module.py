@@ -2,9 +2,11 @@ import json
 import logging
 import warnings
 
+from django.conf import settings
+
 from lxml import etree
 
-from xblock.fields import Integer, Scope
+from xblock.fields import Integer, Scope, Boolean
 from xblock.fragment import Fragment
 from pkg_resources import resource_string
 
@@ -45,6 +47,15 @@ class SequenceFields(object):
         scope=Scope.user_state,
     )
 
+    if settings.FEATURES.get('ENTRANCE_EXAMS', False):
+        is_entrance_exam = Boolean(
+            display_name=_("Is Entrance Exam"),
+            help=_(
+                "Tag this course module as an Entrance Exam.  " +
+                "Note, you must enable Entrance Exams for this course setting to take effect."
+            ),
+            scope=Scope.settings,
+        )
 
 class SequenceModule(SequenceFields, XModule):
     ''' Layout module which lays out content in a temporal sequence
