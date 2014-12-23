@@ -125,7 +125,7 @@ class TestCourseSaleRecordsAnalyticsBasic(ModuleStoreTestCase):
         for i in range(5):
             course_code = CourseRegistrationCode(
                 code="test_code{}".format(i), course_id=self.course.id.to_deprecated_string(),
-                created_by=self.instructor, invoice=sale_invoice
+                created_by=self.instructor, invoice=sale_invoice, mode_slug='honor'
             )
             course_code.save()
 

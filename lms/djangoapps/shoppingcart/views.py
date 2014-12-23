@@ -353,7 +353,12 @@ def register_code_redemption(request, registration_code):
         if reg_code_is_valid and not reg_code_already_redeemed:
             #now redeem the reg code.
             RegistrationCodeRedemption.create_invoice_generated_registration_redemption(course_registration, request.user)
-            CourseEnrollment.enroll(request.user, course.id)
+
+            kwargs = {}
+            if course_registration.mode_slug is not None:
+                kwargs['mode'] = course_registration.mode_slug
+
+            CourseEnrollment.enroll(request.user, course.id, **kwargs)
             context = {
                 'redemption_success': True,
                 'reg_code': registration_code,
