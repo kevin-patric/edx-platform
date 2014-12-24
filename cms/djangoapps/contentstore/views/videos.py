@@ -3,7 +3,6 @@ Views related to the video upload feature
 """
 from boto import s3
 import csv
-import urllib
 from uuid import uuid4
 
 from django.conf import settings
