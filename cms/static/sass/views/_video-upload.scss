@@ -97,15 +97,10 @@
       @include margin-right(flex-gutter());
     }
 
-    .wrapper-download-button {
+    .wrapper-encodings-download {
       display: inline-block;
       width: flex-grid(4, 9);
       text-align: right;
-
-      .download-button {
-        @extend %btn-secondary-blue;
-        @extend %t-action4;
-      }
     }
   }
 }

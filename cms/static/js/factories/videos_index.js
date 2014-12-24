@@ -5,7 +5,7 @@ define(
         var VideosIndexFactory = function(
             $contentWrapper,
             postUrl,
-            urlListUrl,
+            encodingsDownloadUrl,
             concurrentUploadLimit,
             uploadButton,
             previousUploads
@@ -19,7 +19,7 @@ define(
             var previousCollection = new Backbone.Collection(previousUploads);
             var previousView = new PreviousVideoUploadListView({
                 collection: previousCollection,
-                urlListUrl: urlListUrl
+                encodingsDownloadUrl: encodingsDownloadUrl
             });
             $contentWrapper.append(previousView.render().$el);
         };
