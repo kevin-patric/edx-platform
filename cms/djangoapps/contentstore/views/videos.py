@@ -24,7 +24,7 @@ from xmodule.modulestore.django import modulestore
 from .course import get_course_and_check_access
 
 
-__all__ = ["videos_handler", "videos_url_list"]
+__all__ = ["videos_handler", "video_encodings_download"]
 
 
 # String constant used in asset keys to identify video assets.
@@ -67,7 +67,7 @@ def videos_handler(request, course_key_string):
 
 @login_required
 @require_GET
-def videos_url_list(request, course_key_string):
+def video_encodings_download(request, course_key_string):
     """
     Returns a CSV report containing the encoded video URLs for video uploads
     in the following format:
@@ -104,10 +104,14 @@ def videos_url_list(request, course_key_string):
         converting all keys and values to UTF-8 encoded string objects,
         because the CSV module doesn't play well with unicode objects.
         """
+        # Translators: This is listed as the duration for a video that has not
+        # yet reached the point in its processing by the servers where its
+        # duration is determined.
+        duration_val = str(video["duration"]) if video["duration"] > 0 else _("Pending")
         ret = dict(
             [
                 (name_col, video["client_video_id"]),
-                (duration_col, str(video["duration"])),
+                (duration_col, duration_val),
                 (added_col, video["created"].isoformat()),
                 (video_id_col, video["edx_video_id"]),
             ] +

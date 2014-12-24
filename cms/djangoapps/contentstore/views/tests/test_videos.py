@@ -307,7 +307,7 @@ class VideosHandlerTestCase(VideoUploadTestMixin, CourseTestCase):
 class VideoUrlsCsvTestCase(VideoUploadTestMixin, CourseTestCase):
     """Test cases for the CSV download endpoint for video uploads"""
 
-    VIEW_NAME = "videos_url_list"
+    VIEW_NAME = "video_encodings_download"
 
     def test_get_csv(self):
         response = self.client.get(self.url, HTTP_ACCEPT="text/csv")
