@@ -4,7 +4,7 @@
 // in this document:
 // --------------------
 // +notes
-// +messages
+// +toggling notes
 // +creating/editing notes
 // +listing notes
 
@@ -12,12 +12,18 @@
 // --------------------
 // this Sass partial contains all of the styling needed for the in-line student notes UI.
 
-// +messages
+// +toggling notes
 // --------------------
 
-// CASE: error in toggling notes
 .edx-notes-visibility {
 
+}
+
+// CASE: error in toggling notes
+.edx-notes-visibility-error {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
 }
 
 // +creating/editing notes
